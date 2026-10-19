@@ -1,0 +1,4 @@
+# Αρχεία που δημιουργεί το script κατά την εκτέλεση (προσωπικά δεδομένα)
+optimizer_log.txt
+SystemOptimizer.settings.json
+SystemOptimizer.history.json
