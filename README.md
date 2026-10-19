@@ -10,8 +10,11 @@
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE)
 ![Languages](https://img.shields.io/badge/UI-Ελληνικά%20%7C%20English-555)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 **Ελληνικά** · [English](#english)
+
+<img src="docs/screenshot.png" alt="Η κεντρική οθόνη του Ultimate System Optimizer με τις εργασίες καθαρισμού" width="820">
 
 </div>
 
@@ -166,6 +169,18 @@ Install-Module ps2exe -Scope CurrentUser
 Invoke-ps2exe .\SystemOptimizer.ps1 .\SystemOptimizer.exe -noConsole -requireAdmin -STA -iconFile .\SystemOptimizer.ico
 ```
 
+## Αποποίηση ευθύνης
+
+Το εργαλείο διαγράφει αρχεία με δικαιώματα Διαχειριστή. Παρέχεται «ως έχει», χωρίς καμία εγγύηση, και η χρήση του γίνεται με δική σας ευθύνη. Ο δημιουργός δεν ευθύνεται για απώλεια δεδομένων ή άλλη ζημιά. Πριν από τον πρώτο καθαρισμό, διαβάστε την περιγραφή κάθε επιλογής και κρατήστε αντίγραφα ασφαλείας των σημαντικών αρχείων σας.
+
+Το project δεν σχετίζεται με τη Microsoft, τη Google, τη JetBrains ή άλλη εταιρεία των οποίων τα προϊόντα αναφέρονται. Τα ονόματα προϊόντων ανήκουν στους κατόχους τους και χρησιμοποιούνται μόνο για να δηλωθεί ποιο λογισμικό καθαρίζεται.
+
+## Άδεια
+
+Ο κώδικας διατίθεται με την άδεια [MIT](LICENSE).
+
+Εικονίδιο: «[Cleaner brom](https://icon-icons.com/icon/cleaner-brom/53211)» από τα **Funline Icons**, με άδεια [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Δεν καλύπτεται από την άδεια MIT. Δείτε το [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ---
 
 <a id="english"></a>
@@ -220,3 +235,15 @@ cd SystemOptimizer
 - Most deletions are **permanent**. Only files on the "Large files" page can go to the Recycle Bin.
 - Close IDEs, browsers and apps before cleaning so no files stay locked.
 - The whole tool is a single, readable PowerShell script, so you can review it before running it.
+
+### Disclaimer
+
+This tool deletes files with Administrator rights. It is provided "as is", without warranty of any kind, and you use it at your own risk. The author is not liable for any data loss or other damage. Read each option's description before your first clean-up and keep backups of important files.
+
+This project is not affiliated with Microsoft, Google, JetBrains or any other company whose products are mentioned. Product names belong to their owners and are used only to identify the software being cleaned.
+
+### License
+
+The source code is released under the [MIT License](LICENSE).
+
+Icon: "[Cleaner brom](https://icon-icons.com/icon/cleaner-brom/53211)" by **Funline Icons**, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is not covered by the MIT License. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
