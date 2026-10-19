@@ -14,8 +14,9 @@ part of the *Home appliance icons* set on icon-icons.com, is licensed under
 | File | Use |
 |---|---|
 | `Cleaner_icon-icons.com_53211.png` | The original PNG, unmodified |
-| `SystemOptimizer.ico` (and the icon embedded in `SystemOptimizer.exe`) | Converted to the Windows `.ico` format, artwork unchanged |
+| `SystemOptimizer.ico` (and the icon embedded in `SystemOptimizer.exe`) | **Adapted**: redrawn after the original and saved in the Windows `.ico` format (16 to 256 px) |
 
+The same attribution is shown inside the application, in the **About** window.
 If you redistribute this project or the icon, keep this attribution.
 
 ## Trademarks

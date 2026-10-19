@@ -183,6 +183,17 @@ $Str = @{
     'w.end' = '=== ΤΕΛΟΣ - Χρόνος {0} - Ελευθερώθηκαν {1} - Ελεύθερος χώρος {2} ==='
     'w.cleanDone' = 'Ο καθαρισμός ολοκληρώθηκε.'
     'w.fatal' = 'ΣΦΑΛΜΑ: {0}'; 'w.file' = 'αρχείο'
+    'btn.about' = 'Σχετικά'; 'tip.about' = 'Έκδοση, άδεια χρήσης και αναφορές'
+    'about.title' = 'Σχετικά'; 'about.version' = 'Έκδοση {0}'
+    'about.desc' = 'Καθαρισμός Windows για developers: caches εργαλείων ανάπτυξης, φάκελοι build, προσωρινά αρχεία και μεγάλα αρχεία, σε ένα παράθυρο.'
+    'about.hLicense' = 'Άδεια χρήσης'
+    'about.copyright' = '© 2026 Kwstas (kwstas147). Ο κώδικας διατίθεται με την άδεια MIT.'
+    'about.hCredits' = 'Αναφορές'
+    'about.icon' = 'Εικονίδιο: «Cleaner brom» από τα Funline Icons (icon-icons.com), με άδεια CC BY 4.0. Το εικονίδιο της εφαρμογής είναι προσαρμογή του.'
+    'about.hDisclaimer' = 'Αποποίηση ευθύνης'
+    'about.disclaimer' = 'Το λογισμικό παρέχεται «ως έχει», χωρίς καμία εγγύηση. Διαγράφει αρχεία με δικαιώματα Διαχειριστή και η χρήση του γίνεται με δική σας ευθύνη. Δεν σχετίζεται με τη Microsoft, τη Google, τη JetBrains ή άλλη εταιρεία που αναφέρεται. Τα ονόματα προϊόντων ανήκουν στους κατόχους τους.'
+    'about.repo' = 'Κώδικας στο GitHub'; 'about.iconPage' = 'Σελίδα εικονιδίου'; 'about.ccby' = 'Άδεια CC BY 4.0'
+    'about.license' = 'Άδεια MIT...'; 'about.close' = 'Κλείσιμο'; 'about.licenseTitle' = 'Άδεια χρήσης (MIT)'
   }
   en = @{
     'grp.win' = 'Windows'; 'grp.ide' = 'IDEs & code editors'; 'grp.dev' = 'Developer tools'
@@ -278,6 +289,17 @@ $Str = @{
     'w.end' = '=== END - Time {0} - Freed {1} - Free space {2} ==='
     'w.cleanDone' = 'Clean-up finished.'
     'w.fatal' = 'ERROR: {0}'; 'w.file' = 'file'
+    'btn.about' = 'About'; 'tip.about' = 'Version, license and credits'
+    'about.title' = 'About'; 'about.version' = 'Version {0}'
+    'about.desc' = 'A Windows clean-up tool for developers: developer tool caches, build folders, temporary files and large files, in one window.'
+    'about.hLicense' = 'License'
+    'about.copyright' = '© 2026 Kwstas (kwstas147). The source code is released under the MIT License.'
+    'about.hCredits' = 'Credits'
+    'about.icon' = 'Icon: "Cleaner brom" by Funline Icons (icon-icons.com), licensed under CC BY 4.0. The application icon is adapted from it.'
+    'about.hDisclaimer' = 'Disclaimer'
+    'about.disclaimer' = 'This software is provided "as is", without warranty of any kind. It deletes files with Administrator rights and you use it at your own risk. It is not affiliated with Microsoft, Google, JetBrains or any other company mentioned. Product names belong to their owners.'
+    'about.repo' = 'Source code on GitHub'; 'about.iconPage' = 'Icon page'; 'about.ccby' = 'CC BY 4.0 license'
+    'about.license' = 'MIT License...'; 'about.close' = 'Close'; 'about.licenseTitle' = 'License (MIT)'
   }
 }
 
@@ -936,6 +958,9 @@ using System.Runtime.InteropServices;
 public static class SysOptNative {
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int val, int size);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern uint PrivateExtractIcons(string file, int index, int cx, int cy, IntPtr[] icons, uint[] ids, uint count, uint flags);
+    [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr icon);
 }
 '@
     [void][SysOptNative]::SetProcessDPIAware()
@@ -1017,6 +1042,7 @@ foreach ($ic in @($IconPath, (Join-Path $BaseDir 'SystemOptimizer.ico'), "$env:S
     if (-not $ic -or -not (Test-Path -LiteralPath $ic)) { continue }
     try {
         $form.Icon = if ($ic -like '*.ico') { New-Object Drawing.Icon($ic) } else { [Drawing.Icon]::ExtractAssociatedIcon($ic) }
+        $script:IconFile = $ic
         break
     } catch { }
 }
@@ -1031,16 +1057,17 @@ $lblTitle.Location = New-Object Drawing.Point((P 14), (P 6))
 $lblFree = New-Object Windows.Forms.Label
 $lblFree.AutoSize = $true; $lblFree.Location = New-Object Drawing.Point((P 16), (P 38))
 $headerBtns = New-Object Windows.Forms.Panel
-$headerBtns.Dock = 'Right'; $headerBtns.Width = P 300
+$headerBtns.Dock = 'Right'; $headerBtns.Width = P 410
 function New-HeaderBtn([int]$x, [int]$w) {
     $b = New-Object Windows.Forms.Button
     $b.FlatStyle = 'Flat'; $b.Size = New-Object Drawing.Size((P $w), (P 32)); $b.Location = New-Object Drawing.Point((P $x), (P 15))
     $b.ForeColor = [Drawing.Color]::White; $b.BackColor = $Accent; $b.FlatAppearance.BorderColor = [Drawing.Color]::White
     $b
 }
-$btnLang  = New-HeaderBtn 6 100
-$btnTheme = New-HeaderBtn 114 170
-$headerBtns.Controls.AddRange(@($btnLang, $btnTheme))
+$btnAbout = New-HeaderBtn 6 110
+$btnLang  = New-HeaderBtn 124 100
+$btnTheme = New-HeaderBtn 232 170
+$headerBtns.Controls.AddRange(@($btnAbout, $btnLang, $btnTheme))
 $header.Controls.AddRange(@($headerBtns, $lblTitle, $lblFree))
 
 # --- Πλοήγηση (σελίδες) ---
@@ -1546,7 +1573,7 @@ function Set-Theme($theme) {
 function Set-Language([string]$lang) {
     $sync.Lang = $lang
     Update-TaskNames
-    $btnLang.Text = L 'lang.button'
+    $btnLang.Text = L 'lang.button'; $btnAbout.Text = L 'btn.about'
     $btnTheme.Text = if ($script:Theme.Name -eq 'Dark') { L 'theme.toLight' } else { L 'theme.toDark' }
     $btnNavClean.Text = L 'nav.clean'; $btnNavBig.Text = L 'nav.big'; $btnNavHist.Text = L 'nav.hist'
     $btnStop.Text = L 'btn.stop'; $btnLog.Text = L 'btn.log'
@@ -1569,6 +1596,7 @@ function Set-Language([string]$lang) {
     $tip.SetToolTip($btnFindDev, (L 'tip.findDev'))
     $tip.SetToolTip($chkRecycle, (L 'tip.recycle'))
     $tip.SetToolTip($btnLang, (L 'tip.lang'))
+    $tip.SetToolTip($btnAbout, (L 'tip.about'))
     foreach ($k in $GroupKeys) { $GroupNodes[$k].Text = (L "grp.$k") + '      ' }   # κενά: αποφυγή "κομμένου" bold κειμένου
     foreach ($n in (Get-LeafNodes)) { Update-NodeText $n }
     Show-Desc $tree.SelectedNode
@@ -1581,6 +1609,188 @@ function Show-Page([int]$i) {
     $script:page = $i
     $pageClean.Visible = ($i -eq 0); $pageBig.Visible = ($i -eq 1); $pageHist.Visible = ($i -eq 2)
     Update-Nav
+}
+
+# ============================================================
+#  ΣΧΕΤΙΚΑ / ABOUT: έκδοση, άδεια χρήσης, αναφορές
+#  Το κείμενο της άδειας είναι ενσωματωμένο, ώστε να συνοδεύει
+#  και το αυτόνομο .exe (απαίτηση της MIT και της CC BY 4.0).
+# ============================================================
+$AppVersion = '7.0'
+$RepoUrl    = 'https://github.com/kwstas147/SystemOptimizer'
+$IconUrl    = 'https://icon-icons.com/icon/cleaner-brom/53211'
+$CcByUrl    = 'https://creativecommons.org/licenses/by/4.0/'
+$LicenseText = @'
+MIT License
+
+Copyright (c) 2026 Kwstas (kwstas147)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---------------------------------------------------------------------------
+
+Application icon: "Cleaner brom" by Funline Icons
+https://icon-icons.com/icon/cleaner-brom/53211
+Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+The application icon is adapted (redrawn) from the original.
+The icon is NOT covered by the MIT License above.
+'@
+
+# Παράθυρο διαλόγου με το τρέχον θέμα (και σκοτεινή γραμμή τίτλου)
+function New-DialogForm([string]$title) {
+    $d = New-Object Windows.Forms.Form
+    $d.Text = $title; $d.Font = $UiFont; $d.AutoScaleMode = 'None'
+    $d.FormBorderStyle = 'FixedDialog'; $d.MaximizeBox = $false; $d.MinimizeBox = $false
+    $d.ShowInTaskbar = $false; $d.StartPosition = 'CenterParent'; $d.Icon = $form.Icon
+    $d.BackColor = $script:Theme.Bg; $d.ForeColor = $script:Theme.Text
+    $d.add_HandleCreated({
+        param($s, $e)
+        $v = [int]($script:Theme.Name -eq 'Dark')
+        try { [void][SysOptNative]::DwmSetWindowAttribute($s.Handle, 20, [ref]$v, 4) } catch { }
+    })
+    $d
+}
+
+# Εικονίδιο σε μεγάλο μέγεθος. Τα frames του .ico είναι συμπιεσμένα PNG, που το Drawing.Icon
+# του .NET 4 δεν μετατρέπει σωστά, οπότε το διαβάζουν τα Windows (από .ico ή από .exe).
+function Get-AppIconImage([int]$size) {
+    $px = P $size
+    if ($script:IconFile) {
+        $h = New-Object IntPtr[] 1; $ids = New-Object uint32[] 1
+        try {
+            if ([SysOptNative]::PrivateExtractIcons($script:IconFile, 0, $px, $px, $h, $ids, 1, 0) -eq 1 -and $h[0] -ne [IntPtr]::Zero) {
+                $bmp = [Drawing.Icon]::FromHandle($h[0]).ToBitmap()
+                [void][SysOptNative]::DestroyIcon($h[0])
+                return $bmp
+            }
+        } catch { }
+    }
+    if ($form.Icon) { return $form.Icon.ToBitmap() }
+    return $null
+}
+
+function New-AboutText([string]$text, [int]$width, [bool]$bold) {
+    $l = New-Object Windows.Forms.Label
+    $l.AutoSize = $true; $l.MaximumSize = New-Object Drawing.Size($width, 0); $l.Text = $text
+    if ($bold) { $l.Font = $BoldFont; $l.Margin = New-Object Windows.Forms.Padding(0, (P 12), 0, (P 2)) }
+    else { $l.Margin = New-Object Windows.Forms.Padding(0, (P 2), 0, (P 2)) }
+    $l
+}
+
+function New-AboutLink([string]$text, [string]$url) {
+    $l = New-Object Windows.Forms.LinkLabel
+    $l.AutoSize = $true; $l.Text = $text; $l.Tag = $url
+    $l.Margin = New-Object Windows.Forms.Padding(0, (P 4), (P 18), 0)
+    $l.add_LinkClicked({
+        param($s, $e)
+        try { Start-Process ([string]$s.Tag) } catch { }
+    })
+    $l
+}
+
+function Show-License($owner) {
+    $d = New-DialogForm (L 'about.licenseTitle')
+    $d.ClientSize = New-Object Drawing.Size((P 640), (P 470))
+    $d.Padding = New-Object Windows.Forms.Padding((P 12))
+    $tb = New-Object Windows.Forms.TextBox
+    $tb.Dock = 'Fill'; $tb.Multiline = $true; $tb.ReadOnly = $true; $tb.ScrollBars = 'Vertical'
+    $tb.BorderStyle = 'FixedSingle'; $tb.Font = New-Object Drawing.Font('Consolas', 9)
+    $tb.Text = $LicenseText -replace "`r?`n", "`r`n"
+    $bar = New-Flow 'Bottom' 'RightToLeft'
+    $bar.Padding = New-Object Windows.Forms.Padding(0, (P 8), 0, 0)
+    $ok = New-Btn 120 'accent'; $ok.Text = L 'about.close'; $ok.DialogResult = 'OK'
+    $bar.Controls.Add($ok)
+    $d.Controls.Add($tb); $d.Controls.Add($bar)
+    Apply-ThemeTo $d
+    $d.AcceptButton = $ok; $d.CancelButton = $ok; $d.ActiveControl = $ok
+    [void]$d.ShowDialog($owner)
+    $d.Dispose()
+}
+
+function Show-About {
+    $T = $script:Theme
+    $w = P 520
+    $d = New-DialogForm (L 'about.title')
+    $d.AutoSize = $true; $d.AutoSizeMode = 'GrowAndShrink'
+
+    $body = New-Object Windows.Forms.FlowLayoutPanel
+    $body.FlowDirection = 'TopDown'; $body.WrapContents = $false
+    $body.AutoSize = $true; $body.AutoSizeMode = 'GrowAndShrink'
+    $body.Padding = New-Object Windows.Forms.Padding((P 20), (P 16), (P 20), (P 14))
+
+    # Εικονίδιο, όνομα, έκδοση
+    $top = New-Object Windows.Forms.FlowLayoutPanel
+    $top.AutoSize = $true; $top.WrapContents = $false; $top.Margin = New-Object Windows.Forms.Padding(0, 0, 0, (P 6))
+    $pic = New-Object Windows.Forms.PictureBox
+    $pic.Size = New-Object Drawing.Size((P 64), (P 64)); $pic.SizeMode = 'Zoom'
+    $pic.Image = Get-AppIconImage 64
+    $names = New-Object Windows.Forms.FlowLayoutPanel
+    $names.FlowDirection = 'TopDown'; $names.AutoSize = $true; $names.WrapContents = $false
+    $names.Margin = New-Object Windows.Forms.Padding((P 12), (P 4), 0, 0)
+    $lblName = New-Object Windows.Forms.Label
+    $lblName.AutoSize = $true; $lblName.Text = 'Ultimate System Optimizer'
+    $lblName.Font = New-Object Drawing.Font('Segoe UI', 14, [Drawing.FontStyle]::Bold)
+    $lblVer = New-Object Windows.Forms.Label
+    $lblVer.AutoSize = $true; $lblVer.Text = L 'about.version' $AppVersion
+    $names.Controls.AddRange(@($lblName, $lblVer))
+    $top.Controls.AddRange(@($pic, $names))
+
+    $lnkRepo = New-AboutLink (L 'about.repo') $RepoUrl
+    $lnkIcon = New-AboutLink (L 'about.iconPage') $IconUrl
+    $lnkCcBy = New-AboutLink (L 'about.ccby') $CcByUrl
+    $creditLinks = New-Object Windows.Forms.FlowLayoutPanel
+    $creditLinks.AutoSize = $true; $creditLinks.WrapContents = $false; $creditLinks.Margin = New-Object Windows.Forms.Padding(0)
+    $creditLinks.Controls.AddRange(@($lnkIcon, $lnkCcBy))
+    $lblDisclaimer = New-AboutText (L 'about.disclaimer') $w $false
+
+    # Κουμπιά, στοιχισμένα δεξιά
+    $btnRow = New-Object Windows.Forms.FlowLayoutPanel
+    $btnRow.FlowDirection = 'RightToLeft'; $btnRow.WrapContents = $false
+    $btnRow.Size = New-Object Drawing.Size($w, (P 44)); $btnRow.Margin = New-Object Windows.Forms.Padding(0, (P 16), 0, 0)
+    $btnClose = New-Btn 120 'accent'; $btnClose.Text = L 'about.close'; $btnClose.DialogResult = 'OK'
+    $btnLicense = New-Btn 150 ''; $btnLicense.Text = L 'about.license'
+    $btnLicense.add_Click({ param($s, $e) Show-License $s.FindForm() })
+    $btnRow.Controls.AddRange(@($btnClose, $btnLicense))
+
+    $body.Controls.AddRange(@(
+        $top,
+        (New-AboutText (L 'about.desc') $w $false),
+        (New-AboutText (L 'about.hLicense') $w $true),
+        (New-AboutText (L 'about.copyright') $w $false),
+        $lnkRepo,
+        (New-AboutText (L 'about.hCredits') $w $true),
+        (New-AboutText (L 'about.icon') $w $false),
+        $creditLinks,
+        (New-AboutText (L 'about.hDisclaimer') $w $true),
+        $lblDisclaimer,
+        $btnRow))
+    $d.Controls.Add($body)
+
+    Apply-ThemeTo $d
+    $lblVer.ForeColor = $T.Muted; $lblDisclaimer.ForeColor = $T.Muted
+    $linkColor = if ($T.Name -eq 'Dark') { C 110 170 255 } else { $Accent }
+    foreach ($l in @($lnkRepo, $lnkIcon, $lnkCcBy)) {
+        $l.LinkColor = $linkColor; $l.ActiveLinkColor = $linkColor; $l.VisitedLinkColor = $linkColor
+    }
+    $d.AcceptButton = $btnClose; $d.CancelButton = $btnClose
+    [void]$d.ShowDialog($form)
+    $d.Dispose()
 }
 
 # ============================================================
@@ -1667,6 +1877,7 @@ $btnLang.add_Click({
     if ($sync.Lang -eq 'el') { Set-Language 'en' } else { Set-Language 'el' }
     Save-Settings
 })
+$btnAbout.add_Click({ Show-About })
 
 # --- Σελίδα Καθαρισμός ---
 $tree.add_BeforeCheck({ param($s, $e) if ($script:busy) { $e.Cancel = $true } })

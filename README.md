@@ -144,6 +144,7 @@ cd SystemOptimizer
 2. **Μεγάλα αρχεία & node_modules**: επιλέξτε φάκελο και ελάχιστο μέγεθος, κάντε αναζήτηση, τικάρετε και διαγράψτε.
 3. **Ιστορικό**: δείτε πόσο χώρο έχετε κερδίσει συνολικά.
 4. **Ρυθμίσεις**: ορίστε τον φάκελο των projects, τη λίστα εφαρμογών προς τερματισμό και τον φάκελο αναζήτησης.
+5. **Σχετικά** (κουμπί στην κεφαλίδα): έκδοση, άδεια χρήσης, αναφορές και αποποίηση ευθύνης.
 
 ## Αρχεία που δημιουργούνται
 
@@ -162,11 +163,17 @@ cd SystemOptimizer
 - Κλείστε τα IDE, τους browsers και τις εφαρμογές πριν από τον καθαρισμό, για να μη μείνουν κλειδωμένα αρχεία.
 - Ο κώδικας είναι ένα ενιαίο, αναγνώσιμο script PowerShell. Μπορείτε να ελέγξετε τι κάνει πριν το εκτελέσετε.
 
-## Δημιουργία δικού σας .exe (προαιρετικά)
+## Δημιουργία του .exe
 
-```powershell
-Install-Module ps2exe -Scope CurrentUser
-Invoke-ps2exe .\SystemOptimizer.ps1 .\SystemOptimizer.exe -noConsole -requireAdmin -STA -iconFile .\SystemOptimizer.ico
+Το `SystemOptimizer.exe` είναι ένας μικρός launcher σε C# ([src/Launcher.cs](src/Launcher.cs)) που περιέχει το `SystemOptimizer.ps1`. Ζητά δικαιώματα Διαχειριστή και εκτελεί το script με το Windows PowerShell, ακριβώς όπως το `Start-Optimizer.bat`.
+
+Μετά από κάθε αλλαγή στο `.ps1`, διπλό κλικ στο **`build-exe.bat`**. Χρησιμοποιεί τον `csc.exe` του .NET Framework 4, που υπάρχει ήδη στα Windows, οπότε δεν χρειάζεται Visual Studio. Ο φάκελος πρέπει να περιέχει τα:
+
+```text
+SystemOptimizer.ps1
+SystemOptimizer.ico
+build-exe.bat
+src\Launcher.cs
 ```
 
 ## Αποποίηση ευθύνης
@@ -224,6 +231,12 @@ cd SystemOptimizer
 ```
 
 > `SystemOptimizer.ps1` is saved as **UTF-8 with BOM**. Keep that encoding when editing it, or the Greek text will break in PowerShell 5.1.
+
+The **About** button in the header shows the version, license, credits and disclaimer.
+
+### Building the .exe
+
+`SystemOptimizer.exe` is a small C# launcher ([src/Launcher.cs](src/Launcher.cs)) with `SystemOptimizer.ps1` embedded. It requests Administrator rights and runs the script with Windows PowerShell, exactly like `Start-Optimizer.bat`. After every change to the `.ps1`, double-click **`build-exe.bat`**. It uses `csc.exe` from .NET Framework 4, which ships with Windows, so no Visual Studio is needed.
 
 ### Generated files
 
