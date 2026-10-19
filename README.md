@@ -122,11 +122,17 @@
 
 ## Εγκατάσταση και εκκίνηση
 
-**Επιλογή Α: εκτελέσιμο**
-1. Κατεβάστε το `SystemOptimizer.exe`.
-2. Διπλό κλικ και «Ναι» στο UAC. Το `.exe` περιέχει το script και δεν χρειάζεται άλλα αρχεία.
+**Επιλογή Α: εγκατάσταση (προτείνεται)**
+1. Κατεβάστε το `SystemOptimizer-Setup-7.0.exe` από τα [Releases](https://github.com/kwstas147/SystemOptimizer/releases).
+2. Τρέξτε το και ακολουθήστε τον οδηγό (ελληνικά ή αγγλικά).
 
-**Επιλογή Β: από τον κώδικα**
+Η εφαρμογή εγκαθίσταται στο `C:\Program Files\Ultimate System Optimizer`, με συντόμευση στο μενού Έναρξη (και προαιρετικά στην επιφάνεια εργασίας). Εμφανίζεται στις **Ρυθμίσεις → Εφαρμογές → Εγκατεστημένες εφαρμογές**, απ' όπου γίνεται και η απεγκατάσταση. Κατά την απεγκατάσταση σας ρωτά αν θέλετε να διαγραφούν και οι ρυθμίσεις και το ιστορικό σας.
+
+**Επιλογή Β: portable εκτελέσιμο**
+1. Κατεβάστε το `SystemOptimizer.exe` σε όποιον φάκελο θέλετε.
+2. Διπλό κλικ και «Ναι» στο UAC. Το `.exe` περιέχει το script και δεν χρειάζεται άλλα αρχεία ή εγκατάσταση.
+
+**Επιλογή Γ: από τον κώδικα**
 1. Κλωνοποιήστε το repo ή κατεβάστε τα `SystemOptimizer.ps1` και `Start-Optimizer.bat` στον ίδιο φάκελο.
 2. Διπλό κλικ στο `Start-Optimizer.bat` και «Ναι» στο UAC.
 
@@ -154,7 +160,10 @@ cd SystemOptimizer
 | `SystemOptimizer.settings.json` | Επιλογές, γλώσσα, θέμα, ρυθμίσεις |
 | `SystemOptimizer.history.json` | Ιστορικό καθαρισμών |
 
-Τα αρχεία γράφονται δίπλα στο script. Αν ο φάκελος δεν επιτρέπει εγγραφή, το log πηγαίνει στο `%TEMP%` και τα JSON στο `%LOCALAPPDATA%`. Και τα τρία περιέχουν διαδρομές του υπολογιστή σας και εξαιρούνται από το git μέσω του `.gitignore`.
+- **Εγκατεστημένη εφαρμογή:** στο `%LOCALAPPDATA%\SystemOptimizer`. Ο φάκελος της εφαρμογής στο Program Files δεν περιέχει ποτέ δεδομένα χρήστη.
+- **Portable `.exe` ή script:** δίπλα στο `.exe` ή στο script. Αν ο φάκελος δεν επιτρέπει εγγραφή, το log πηγαίνει στο `%TEMP%` και τα JSON στο `%LOCALAPPDATA%`.
+
+Και τα τρία αρχεία περιέχουν διαδρομές του υπολογιστή σας και εξαιρούνται από το git μέσω του `.gitignore`.
 
 ## Ασφάλεια
 
@@ -175,6 +184,16 @@ SystemOptimizer.ico
 build-exe.bat
 src\Launcher.cs
 ```
+
+## Δημιουργία του installer
+
+Διπλό κλικ στο **`build-installer.bat`**. Φτιάχνει πρώτα το `SystemOptimizer.exe` και μετά το `dist\SystemOptimizer-Setup-<έκδοση>.exe`, από το [installer/SystemOptimizer.iss](installer/SystemOptimizer.iss). Χρειάζεται το δωρεάν [Inno Setup 6](https://jrsoftware.org/isinfo.php):
+
+```powershell
+winget install JRSoftware.InnoSetup
+```
+
+Σε νέα έκδοση, αλλάξτε τον αριθμό σε τρία σημεία: `$AppVersion` στο `SystemOptimizer.ps1`, `AssemblyVersion` / `AssemblyFileVersion` στο `src\Launcher.cs` και `AppVersion` στο `installer\SystemOptimizer.iss`. Το `AppId` του installer δεν αλλάζει ποτέ, ώστε κάθε νέα έκδοση να αναβαθμίζει την παλιά.
 
 ## Αποποίηση ευθύνης
 
@@ -220,9 +239,11 @@ Development tools quietly fill your disk: Gradle caches, build folders in Flutte
 
 ### Getting started
 
-**Option A: executable.** Download `SystemOptimizer.exe`, double-click it and accept the UAC prompt. The `.exe` contains the script and needs no other files.
+**Option A: installer (recommended).** Download `SystemOptimizer-Setup-7.0.exe` from [Releases](https://github.com/kwstas147/SystemOptimizer/releases) and run it. The app is installed in `C:\Program Files\Ultimate System Optimizer` with a Start menu shortcut (and an optional desktop shortcut). It appears in **Settings → Apps → Installed apps**, where you can uninstall it. The uninstaller asks whether to delete your settings and history as well.
 
-**Option B: from source.** Put `SystemOptimizer.ps1` and `Start-Optimizer.bat` in the same folder, double-click `Start-Optimizer.bat` and accept the UAC prompt.
+**Option B: portable executable.** Download `SystemOptimizer.exe` to any folder, double-click it and accept the UAC prompt. The `.exe` contains the script and needs no other files or installation.
+
+**Option C: from source.** Put `SystemOptimizer.ps1` and `Start-Optimizer.bat` in the same folder, double-click `Start-Optimizer.bat` and accept the UAC prompt.
 
 ```powershell
 git clone https://github.com/kwstas147/SystemOptimizer.git
@@ -238,9 +259,13 @@ The **About** button in the header shows the version, license, credits and discl
 
 `SystemOptimizer.exe` is a small C# launcher ([src/Launcher.cs](src/Launcher.cs)) with `SystemOptimizer.ps1` embedded. It requests Administrator rights and runs the script with Windows PowerShell, exactly like `Start-Optimizer.bat`. After every change to the `.ps1`, double-click **`build-exe.bat`**. It uses `csc.exe` from .NET Framework 4, which ships with Windows, so no Visual Studio is needed.
 
+### Building the installer
+
+Double-click **`build-installer.bat`**. It builds `SystemOptimizer.exe` first and then `dist\SystemOptimizer-Setup-<version>.exe` from [installer/SystemOptimizer.iss](installer/SystemOptimizer.iss). It needs the free [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`). For a new version, change the number in `SystemOptimizer.ps1` (`$AppVersion`), `src\Launcher.cs` and `installer\SystemOptimizer.iss`. Never change the installer's `AppId`, so that each new version upgrades the previous one.
+
 ### Generated files
 
-`optimizer_log.txt`, `SystemOptimizer.settings.json` and `SystemOptimizer.history.json` are written next to the script. If that folder is not writable, the log goes to `%TEMP%` and the JSON files go to `%LOCALAPPDATA%`. They contain paths from your machine and are excluded from git through `.gitignore`.
+`optimizer_log.txt`, `SystemOptimizer.settings.json` and `SystemOptimizer.history.json` are written to `%LOCALAPPDATA%\SystemOptimizer` when the app is installed, so the Program Files folder never holds user data. The portable `.exe` and the script write them next to themselves. If that folder is not writable, the log goes to `%TEMP%` and the JSON files go to `%LOCALAPPDATA%`. They contain paths from your machine and are excluded from git through `.gitignore`.
 
 ### Safety
 

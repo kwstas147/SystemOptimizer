@@ -961,9 +961,13 @@ public static class SysOptNative {
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     public static extern uint PrivateExtractIcons(string file, int index, int cx, int cy, IntPtr[] icons, uint[] ids, uint count, uint flags);
     [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr icon);
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)] public static extern int SetCurrentProcessExplicitAppUserModelID(string appId);
 }
 '@
     [void][SysOptNative]::SetProcessDPIAware()
+    # Δικό μας AppUserModelID: χωρίς αυτό η γραμμή εργασιών ομαδοποιεί το παράθυρο με το
+    # powershell.exe και δείχνει το εικονίδιο του PowerShell αντί για το δικό μας.
+    [void][SysOptNative]::SetCurrentProcessExplicitAppUserModelID('Kwstas147.UltimateSystemOptimizer')
 } catch { }
 [Windows.Forms.Application]::EnableVisualStyles()
 
@@ -981,7 +985,9 @@ $Accent = C 0 95 184
 $Danger = C 196 43 28
 
 $gfx = [Drawing.Graphics]::FromHwnd([IntPtr]::Zero); $S = $gfx.DpiX / 96.0; $gfx.Dispose()
-function P([double]$n) { [int][math]::Round($n * $S) }
+# $script:S ρητά: οι handlers έχουν param($s, ...) και οι μεταβλητές του PowerShell δεν κάνουν
+# διάκριση πεζών/κεφαλαίων, οπότε ένα σκέτο $S θα έπαιρνε τον sender αντί για την κλίμακα DPI.
+function P([double]$n) { [int][math]::Round($n * $script:S) }
 
 $UiFont    = New-Object Drawing.Font('Segoe UI', 9)
 $BoldFont  = New-Object Drawing.Font('Segoe UI', 9.5, [Drawing.FontStyle]::Bold)

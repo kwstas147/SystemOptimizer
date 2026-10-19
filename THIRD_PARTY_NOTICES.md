@@ -19,6 +19,15 @@ part of the *Home appliance icons* set on icon-icons.com, is licensed under
 The same attribution is shown inside the application, in the **About** window.
 If you redistribute this project or the icon, keep this attribution.
 
+## Installer
+
+The setup program (`SystemOptimizer-Setup-*.exe`) is built with
+[Inno Setup](https://jrsoftware.org/isinfo.php), Copyright (C) 1997-2026 Jordan Russell
+and Martijn Laan, used under the [Inno Setup License](https://jrsoftware.org/files/is/license.txt).
+`installer/Languages/Greek.isl` is the user-contributed Greek translation from the
+[Inno Setup repository](https://github.com/jrsoftware/issrc/tree/main/Files/Languages/Unofficial),
+by Anastasis Chatzioglou, XhmikosR and Vasileios Karamichail, unmodified except for a UTF-8 BOM.
+
 ## Trademarks
 
 Windows, PowerShell, Microsoft Edge, Microsoft Teams, Visual Studio Code and NuGet

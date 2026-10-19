@@ -2,3 +2,6 @@
 optimizer_log.txt
 SystemOptimizer.settings.json
 SystemOptimizer.history.json
+
+# Αποτέλεσμα του build-installer.bat (ανεβαίνει στα GitHub Releases, όχι στο repo)
+dist/

@@ -2,7 +2,9 @@
 // Το SystemOptimizer.ps1 είναι ενσωματωμένο ως resource. Ο launcher ζητά δικαιώματα
 // Διαχειριστή, γράφει το script στο %LOCALAPPDATA%\SystemOptimizer και το εκτελεί με το
 // Windows PowerShell ακριβώς όπως το Start-Optimizer.bat. Οι ρυθμίσεις, το ιστορικό και το
-// log γράφονται δίπλα στο .exe (παράμετρος -DataDir).
+// log (παράμετρος -DataDir) γράφονται:
+//  - εγκατεστημένη εφαρμογή (μέσα στο Program Files): στο %LOCALAPPDATA%\SystemOptimizer
+//  - portable (οποιοσδήποτε άλλος φάκελος): δίπλα στο .exe
 //
 // Build: build-exe.bat (csc.exe του .NET Framework 4, υπάρχει ήδη στα Windows).
 
@@ -52,6 +54,7 @@ static class Launcher
             string workDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SystemOptimizer");
             Directory.CreateDirectory(workDir);
+            string dataDir = IsUnderProgramFiles(exeDir) ? workDir : exeDir;
             string script = Path.Combine(workDir, ScriptName);
             using (Stream src = asm.GetManifestResourceStream(ScriptName))
             using (FileStream dst = File.Create(script))
@@ -69,7 +72,7 @@ static class Launcher
             ProcessStartInfo psi = new ProcessStartInfo(powershell);
             psi.Arguments = string.Format(
                 "-NoProfile -ExecutionPolicy Bypass -STA -WindowStyle Hidden -File \"{0}\" -DataDir \"{1}\" -IconPath \"{2}\"",
-                script, exeDir, exePath);
+                script, dataDir, exePath);
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
             psi.WorkingDirectory = exeDir;
@@ -81,6 +84,19 @@ static class Launcher
             MessageBox.Show(ex.Message, Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
+    }
+
+    // Ο φάκελος της εφαρμογής δεν πρέπει να δέχεται αρχεία χρήστη (ρυθμίσεις, ιστορικό, log)
+    static bool IsUnderProgramFiles(string dir)
+    {
+        string full = Path.GetFullPath(dir).TrimEnd('\\') + "\\";
+        foreach (Environment.SpecialFolder f in new[] {
+            Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 })
+        {
+            string pf = Environment.GetFolderPath(f);
+            if (pf.Length > 0 && full.StartsWith(pf.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
     }
 
     static bool IsAdmin()
